@@ -1,0 +1,34 @@
+plugins {
+    id 'groovy'
+    id 'java-gradle-plugin'
+}
+
+group = 'ca.martinda.gradle'
+version = '0.0.1'
+
+repositories {
+    jcenter()
+}
+
+dependencies {
+    compile group: 'org.ysb33r.gradle', name: 'gnumake', version: '1.1'
+    testCompile("org.spockframework:spock-core:1.0-groovy-${GroovySystem.version.replaceAll(/\.\d+$/, '')}") {
+        exclude module: 'groovy-all'
+    }
+}
+
+gradlePlugin {
+    plugins {
+        gnuMakeWrapperExample {
+            id = 'ca.martinda.gnumake-wrapper'
+            implementationClass = 'ca.martinda.gradle.GnuMakeWrapperPlugin'
+        }
+    }
+}
+
+test {
+    testLogging.showStandardStreams = true
+    beforeTest { descriptor ->
+        println('Running '+descriptor)
+    }
+}
