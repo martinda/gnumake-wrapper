@@ -115,5 +115,30 @@ class GnuMakeWrapperExampleTest extends Specification {
         result.output.contains('A provided variable exists: value')
         result.task(":runMakeAll").outcome == SUCCESS
     }
+
+    def "user can put target name on the gradle command line"() {
+        given:
+        makefile = this.getClass().getClassLoader().getResource('MakefileWithInclude').getFile()
+        buildFile << """
+            plugins {
+                id 'ca.martinda.gnumake-wrapper'
+            }
+            gnumake {
+                makefile = "${makefile}"
+            }
+        """
+
+        when:
+        def result = GradleRunner.create()
+            .withProjectDir(testProjectDir.root)
+            .withArguments(['tasks', '--all', 'makeAll', 'makeHelp'])
+            .withPluginClasspath()
+            .build()
+
+        then:
+        result.output.contains('Hello world')
+        result.output.contains('Hogwards')
+        result.task(":makeAll").outcome == SUCCESS
+    }
 }
 

@@ -6,6 +6,7 @@ import org.gradle.api.Task
 
 import org.gradle.model.ModelMap
 import org.gradle.model.Mutate
+import org.gradle.model.Finalize
 import org.gradle.model.RuleSource
 
 import org.ysb33r.gradle.gnumake.GnuMakeBuild
@@ -18,11 +19,10 @@ public class GnuMakeWrapperPlugin implements Plugin<Project> {
     }
 
     static class Rules extends RuleSource {
-        @Mutate
+        @Finalize
         void createTask(ModelMap<Task> tasks) {
             tasks.withType(GnuMakeBuild) {
                 includeDirs += [this.class.getClassLoader().getResource('makefiles').getFile()]
-                println(includeDirs)
             }
         }
     }
