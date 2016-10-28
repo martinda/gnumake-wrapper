@@ -16,4 +16,14 @@ public class GnuMakeWrapperPlugin implements Plugin<Project> {
     public void apply(Project project) {
         project.getPluginManager().apply(GnuMakePlugin.class)
     }
+
+    static class Rules extends RuleSource {
+        @Mutate
+        void createTask(ModelMap<Task> tasks) {
+            tasks.withType(GnuMakeBuild) {
+                includeDirs += [this.class.getClassLoader().getResource('makefiles').getFile()]
+                println(includeDirs)
+            }
+        }
+    }
 }
