@@ -16,13 +16,4 @@ public class GnuMakeWrapperPlugin implements Plugin<Project> {
     public void apply(Project project) {
         project.getPluginManager().apply(GnuMakePlugin.class)
     }
-
-    static class Rules extends RuleSource {
-        @Mutate
-        void createTask(ModelMap<Task> tasks) {
-            tasks.create('runMake',GnuMakeBuild) { task ->
-                task.targets = 'help'
-            }
-        }
-    }
 }

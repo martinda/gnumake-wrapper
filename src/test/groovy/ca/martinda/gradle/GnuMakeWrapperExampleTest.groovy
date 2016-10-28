@@ -6,12 +6,15 @@ import org.junit.Rule
 import org.junit.rules.TemporaryFolder
 import spock.lang.Specification
 
-class BuildLogicFunctionalTest extends Specification {
+class GnuMakeWrapperExampleTest extends Specification {
     @Rule final TemporaryFolder testProjectDir = new TemporaryFolder()
     File buildFile
+    String makefile
 
     def setup() {
         buildFile = testProjectDir.newFile('build.gradle')
+        makefile = this.getClass().getClassLoader().getResource('Makefile').getFile()
+        println('Resource :'+makefile)
     }
 
     def "can load plugin"() {
@@ -30,28 +33,31 @@ class BuildLogicFunctionalTest extends Specification {
             .build()
 
         then:
-        result.output.contains('runMake')
         result.task(":tasks").outcome == SUCCESS
     }
 
-    def "can runMake"() {
+    def "can use ysb33r's plugin"() {
         given:
         buildFile << """
             plugins {
                 id 'ca.martinda.gnumake-wrapper'
+            }
+            import org.ysb33r.gradle.gnumake.GnuMakeBuild
+            task runMakeAll(type: GnuMakeBuild) {
+                targets = ['all','help']
+                makefile = "${makefile}"
             }
         """
 
         when:
         def result = GradleRunner.create()
             .withProjectDir(testProjectDir.root)
-            .withArguments(['runMake'])
+            .withArguments(['runMakeAll'])
             .withPluginClasspath()
             .build()
 
         then:
-        println(result.output)
-        result.task(":runMake").outcome == SUCCESS
+        result.task(":runMakeAll").outcome == SUCCESS
     }
 }
 
