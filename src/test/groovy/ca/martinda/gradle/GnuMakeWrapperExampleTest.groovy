@@ -14,7 +14,6 @@ class GnuMakeWrapperExampleTest extends Specification {
     def setup() {
         buildFile = testProjectDir.newFile('build.gradle')
         makefile = this.getClass().getClassLoader().getResource('Makefile').getFile()
-        println('Resource :'+makefile)
     }
 
     def "can load plugin"() {
@@ -36,7 +35,7 @@ class GnuMakeWrapperExampleTest extends Specification {
         result.task(":tasks").outcome == SUCCESS
     }
 
-    def "can use ysb33r's plugin"() {
+    def "can call a user Makefile"() {
         given:
         buildFile << """
             plugins {
@@ -57,6 +56,34 @@ class GnuMakeWrapperExampleTest extends Specification {
             .build()
 
         then:
+        result.output.contains('Hogwards')
+        result.task(":runMakeAll").outcome == SUCCESS
+    }
+
+    def "can configure usign the gnumake project extension"() {
+        given:
+        buildFile << """
+            plugins {
+                id 'ca.martinda.gnumake-wrapper'
+            }
+            gnumake {
+                makefile = "${makefile}"
+            }
+            import org.ysb33r.gradle.gnumake.GnuMakeBuild
+            task runMakeAll(type: GnuMakeBuild) {
+                targets = ['all','help']
+            }
+        """
+
+        when:
+        def result = GradleRunner.create()
+            .withProjectDir(testProjectDir.root)
+            .withArguments(['runMakeAll'])
+            .withPluginClasspath()
+            .build()
+
+        then:
+        result.output.contains('Hogwards')
         result.task(":runMakeAll").outcome == SUCCESS
     }
 }
